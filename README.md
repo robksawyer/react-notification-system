@@ -39,39 +39,28 @@ For optimal appearance, this component **must be rendered on a top level HTML el
 Here is a basic example. For a more advanced usage, please see the [example code](https://github.com/igorprado/react-notification-system/blob/master/example/src/scripts/App.jsx).
 
 ```js
-var React = require('react');
-var ReactDOM = require('react-dom');
-var NotificationSystem = require('react-notification-system');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import NotificationSystem from 'react-notification-system'
 
-var MyComponent = React.createClass({
-  _notificationSystem: null,
-
-  _addNotification: function(event) {
-    event.preventDefault();
-    this._notificationSystem.addNotification({
-      message: 'Notification message',
-      level: 'success'
-    });
-  },
-
-  componentDidMount: function() {
-    this._notificationSystem = this.refs.notificationSystem;
-  },
-
-  render: function() {
+class MyRootApp extends Component {
+  render() {
     return (
       <div>
-        <button onClick={this._addNotification}>Add notification</button>
-        <NotificationSystem ref="notificationSystem" />
+        ...
+        <NotificationSystem/>
       </div>
-      );
+    )
   }
+}
+
+...later, no refs needed
+
+NotificationSystem.addNotification({
+  message: 'My Message',
+  level: 'info'
 });
 
-ReactDOM.render(
-  React.createElement(MyComponent),
-  document.getElementById('app')
-);
 ```
 
 ## Methods
