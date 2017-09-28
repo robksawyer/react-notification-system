@@ -1,6 +1,12 @@
-// Used for calculations
-var defaultWidth = 320;
-var defaultColors = {
+/**
+ * styles.js
+ *
+ * A collection of styles for the notifications that are dynamically applied.
+ *
+ * Used for calculations
+ */
+const defaultWidth = 320;
+const defaultColors = {
   success: {
     rgb: '94, 164, 0',
     hex: '#5ea400'
@@ -18,9 +24,9 @@ var defaultColors = {
     hex: '#369cc7'
   }
 };
-var defaultShadowOpacity = '0.9';
+const defaultShadowOpacity = '0.9';
 
-var STYLES = {
+const STYLES = {
 
   Wrapper: {},
   Containers: {
@@ -257,4 +263,4 @@ var STYLES = {
   }
 };
 
-module.exports = STYLES;
+export default STYLES;

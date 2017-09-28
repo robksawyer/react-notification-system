@@ -188,9 +188,15 @@ var NotificationItem = createReactClass({
 
   componentDidMount: function() {
     var self = this;
+    console.log(this);
     var transitionEvent = whichTransitionEvent();
     var notification = this.props.notification;
     var element = ReactDOM.findDOMNode(this);
+
+    if (!element) {
+      console.log('There was an issue finding `element`.');
+      return false;
+    }
 
     this._height = element.offsetHeight;
 

@@ -1,4 +1,7 @@
-var CONSTANTS = {
+/**
+ * constants.js
+ */
+const Constants = {
 
   // Positions
   positions: {
@@ -30,5 +33,4 @@ var CONSTANTS = {
   }
 };
 
-
-module.exports = CONSTANTS;
+export default Constants;

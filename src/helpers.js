@@ -1,4 +1,7 @@
-var Helpers = {
+/**
+ * helpers.js
+ */
+const Helpers = {
   Timer: function(callback, delay) {
     var timerId;
     var start;
@@ -23,4 +26,4 @@ var Helpers = {
   }
 };
 
-module.exports = Helpers;
+export default Helpers;
