@@ -23,14 +23,19 @@ import styles from './styles';
 class NotificationSystem extends Component {
   constructor(props) {
     super(props);
-    this.store = this.props.store.notificationStore;
-    this.uid = 3400;
+
     this.isMounted = false;
+
+    this.store = props.store.notificationStore;
+
+    this.overrideStyle = props.style;
   }
 
   componentDidMount() {
-    this.getStyles.setOverrideStyle(styles);
+    // Set mount status
     this.isMounted = true;
+
+    // There should only be one instance of the Notification System.
     if (NotificationSystem.instance) {
       console.warn('NotificationSystem', 'Attempting to mount a second system into the DOM.');
     }
@@ -39,156 +44,118 @@ class NotificationSystem extends Component {
 
   componentWillUnmount() {
     this.isMounted = false;
+    // Clear the instance val
     if (NotificationSystem.instance === this) {
       NotificationSystem.instance = null;
     }
   }
 
   /**
-   * getStyles
+   * wrapper
    */
-  getStyles = {
-    overrideStyle: {},
+  wrapper() {
+    if (!this.overrideStyle) return {};
+    return merge({}, styles.Wrapper, this.overrideStyle);
+    // UPDATE: Removed Wrapper. TODO: Test this more.
+    // return merge({}, styles.Wrapper, this.overrideStyle.Wrapper);
+  }
 
-    overrideWidth: null,
-
-    setOverrideStyle: (style) => {
-      this.overrideStyle = style;
-    },
-
-    wrapper: () => {
-      if (!this.overrideStyle) return {};
-      return merge({}, styles.Wrapper, this.overrideStyle.Wrapper);
-    },
-
-    /**
-     * container
-     */
-    container: (position) => {
-      const override = this.overrideStyle.Containers || {};
-      if (!this.overrideStyle) return {};
-
-      this.overrideWidth = styles.Containers.DefaultStyle.width;
-
-      if (override.DefaultStyle && override.DefaultStyle.width) {
-        this.overrideWidth = override.DefaultStyle.width;
-      }
-
-      if (override[position] && override[position].width) {
-        this.overrideWidth = override[position].width;
-      }
-
-      return merge(
-        {},
-        styles.Containers.DefaultStyle,
-        styles.Containers[position],
-        override.DefaultStyle,
-        override[position],
-      );
-    },
-
-    elements: {
-      notification: 'NotificationItem',
-      title: 'Title',
-      messageWrapper: 'MessageWrapper',
-      dismiss: 'Dismiss',
-      action: 'Action',
-      actionWrapper: 'ActionWrapper',
-    },
-
-    byElement: (element) => {
-      console.log('------ byElement ------');
-      const self = this;
-      return (level) => {
-        try {
-          const tElement = self.elements[element];
-          console.log(tElement);
-        } catch (err) {
-          console.error(err);
-        }
-        try {
-          const override = self.overrideStyle[element] || {};
-          console.log(override);
-        } catch (err) {
-          console.error(err);
-        }
-        if (!self.overrideStyle) return {};
-        return merge(
-          {},
-          styles[element].DefaultStyle,
-          styles[element][level],
-          override.DefaultStyle,
-          override[level]
-        );
-      };
-    },
-  };
-
-  @observable uid;
   @observable isMounted;
+  @observable overrideStyle;
 
   /**
-   * didNotificationRemoved
+   * didNotificationGetRemoved
+   * Handles removing the notification from the store.
    */
-  didNotificationRemoved(uid) {
-    let notification;
-    const notifications = this.store.notifications.filter(
-      (toCheck) => {
-        if (toCheck.uid === uid) {
-          notification = toCheck;
-          return false;
-        }
-        return true;
-      },
-    );
-
-    if (this.isMounted) {
-      this.store.notifications.replace(notifications);
+  didNotificationGetRemoved(uid) {
+    const { notificationStore } = this.props.store;
+    let notification = notificationStore.notifications.get(uid);
+    if (!notification) {
+      return true;
     }
 
-    if (notification && notification.onRemove) {
+    // Remove the notification from the store map
+    notificationStore.notifications.delete(uid);
+
+    // Check to see if the notification still exists.
+    this.notification = notificationStore.notifications.get(uid);
+
+    // Fire the callback
+    if (!this.notification && notification.onRemove) {
       notification.onRemove(notification);
+      notification = null;
+    }
+    // Send a result back
+    if (!this.notification) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * didNotificationGetAdded
+   * Handles firing the callback passed.
+   */
+  didNotificationGetAdded(uid) {
+    const { notificationStore } = this.props.store;
+    const notification = notificationStore.notifications.get(uid);
+
+    if (notification && notification.onAdd) {
+      notification.onAdd(notification);
     }
   }
 
   render() {
-    const self = this;
-    let containers = null;
-    const notifications = this.store.notifications;
+    const {
+      noAnimation,
+      allowHTML,
+    } = this.props;
 
-    if (notifications.length) {
+    const { notificationStore } = this.props.store;
+
+    let containers = null;
+
+    // Get the notifications from the store.
+    // const notifications = notificationStore.notifications;
+    if (notificationStore.notifications.size) {
+      // Make the containers for the notification.
       containers = Object.keys(Constants.positions).map(
         (position) => {
-          const tNotifications = notifications.filter(
-            notification => position === notification.position,
+          // Get the notifications based on a certain position.
+          const tNotifications = [];
+          notificationStore.notifications.forEach(
+            (value) => {
+              if (position === value.position) {
+                tNotifications.push(value);
+              }
+            },
           );
 
+          // If there aren't any notifications return null
           if (!tNotifications.length) {
             return null;
           }
 
           return (
             <NotificationContainer
-              ref={`container-${position}`}
+              ref={`container-${position}`} // TODO: Do we really need this?
               key={position}
               // key={ shortid.generate() }
               position={position}
-              notifications={tNotifications}
-              getStyles={self.getStyles}
-              onRemove={self.didNotificationRemoved}
-              noAnimation={self.props.noAnimation}
-              allowHTML={self.props.allowHTML}
+              onRemove={this.didNotificationGetRemoved}
+              onAdd={this.didNotificationGetAdded}
+              noAnimation={noAnimation}
+              allowHTML={allowHTML}
             />
           );
         },
       );
     }
 
-
     return (
       <div
         className="notifications-wrapper"
-        style={this.getStyles.wrapper()}
+        style={this.wrapper()}
       >
         { containers }
       </div>
@@ -229,13 +196,20 @@ class NotificationSystem extends Component {
   // }
 }
 
-// NotificationSystem.propTypes = {
-//   style: PropTypes.oneOfType([
-//     PropTypes.bool,
-//     PropTypes.object
-//   ]),
-//   noAnimation: PropTypes.bool,
-//   allowHTML: PropTypes.bool
-// };
+NotificationSystem.defaultProps = {
+  style: false,
+  noAnimation: false,
+  allowHTML: true,
+};
+
+NotificationSystem.propTypes = {
+  store: PropTypes.oneOfType([PropTypes.object]),
+  style: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.object,
+  ]),
+  noAnimation: PropTypes.bool,
+  allowHTML: PropTypes.bool,
+};
 
 export default NotificationSystem;

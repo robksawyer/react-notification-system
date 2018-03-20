@@ -9,24 +9,24 @@ const defaultWidth = 320;
 const defaultColors = {
   success: {
     rgb: '94, 164, 0',
-    hex: '#5ea400'
+    hex: '#5ea400',
   },
   error: {
     rgb: '236, 61, 61',
-    hex: '#ec3d3d'
+    hex: '#ec3d3d',
   },
   warning: {
     rgb: '235, 173, 23',
-    hex: '#ebad1a'
+    hex: '#ebad1a',
   },
   info: {
     rgb: '54, 156, 199',
-    hex: '#369cc7'
-  }
+    hex: '#369cc7',
+  },
 };
 const defaultShadowOpacity = '0.9';
 
-const STYLES = {
+const styles = {
 
   Wrapper: {},
   Containers: {
@@ -39,21 +39,21 @@ const STYLES = {
       WebkitBoxSizing: 'border-box',
       MozBoxSizing: 'border-box',
       boxSizing: 'border-box',
-      height: 'auto'
+      height: 'auto',
     },
 
     tl: {
       top: '0px',
       bottom: 'auto',
       left: '0px',
-      right: 'auto'
+      right: 'auto',
     },
 
     tr: {
       top: '0px',
       bottom: 'auto',
       left: 'auto',
-      right: '0px'
+      right: '0px',
     },
 
     tc: {
@@ -61,21 +61,21 @@ const STYLES = {
       bottom: 'auto',
       margin: '0 auto',
       left: '50%',
-      marginLeft: -(defaultWidth / 2)
+      marginLeft: -(defaultWidth / 2),
     },
 
     bl: {
       top: 'auto',
       bottom: '0px',
       left: '0px',
-      right: 'auto'
+      right: 'auto',
     },
 
     br: {
       top: 'auto',
       bottom: '0px',
       left: 'auto',
-      right: '0px'
+      right: '0px',
     },
 
     bc: {
@@ -83,8 +83,8 @@ const STYLES = {
       bottom: '0px',
       margin: '0 auto',
       left: '50%',
-      marginLeft: -(defaultWidth / 2)
-    }
+      marginLeft: -(defaultWidth / 2),
+    },
 
   },
 
@@ -101,56 +101,56 @@ const STYLES = {
       WebkitBoxSizing: 'border-box',
       MozBoxSizing: 'border-box',
       boxSizing: 'border-box',
-      opacity: 0,
-      transition: '0.3s ease-in-out',
+      // opacity: 0,
+      // transition: '0.3s ease-in-out',
       WebkitTransform: 'translate3d(0, 0, 0)',
       transform: 'translate3d(0, 0, 0)',
-      willChange: 'transform, opacity',
+      // willChange: 'transform, opacity',
 
       isHidden: {
-        opacity: 0
+        opacity: 0,
       },
 
       isVisible: {
-        opacity: 1
-      }
+        opacity: 1,
+      },
     },
 
     success: {
-      borderTop: '2px solid ' + defaultColors.success.hex,
+      borderTop: `2px solid ${defaultColors.success.hex}`,
       backgroundColor: '#f0f5ea',
       color: '#4b583a',
-      WebkitBoxShadow: '0 0 1px rgba(' + defaultColors.success.rgb + ',' + defaultShadowOpacity + ')',
-      MozBoxShadow: '0 0 1px rgba(' + defaultColors.success.rgb + ',' + defaultShadowOpacity + ')',
-      boxShadow: '0 0 1px rgba(' + defaultColors.success.rgb + ',' + defaultShadowOpacity + ')'
+      WebkitBoxShadow: `0 0 1px rgba(${defaultColors.success.rgb},${defaultShadowOpacity})`,
+      MozBoxShadow: `0 0 1px rgba(${defaultColors.success.rgb},${defaultShadowOpacity})`,
+      boxShadow: `0 0 1px rgba(${defaultColors.success.rgb},${defaultShadowOpacity})`,
     },
 
     error: {
-      borderTop: '2px solid ' + defaultColors.error.hex,
+      borderTop: `2px solid ${defaultColors.error.hex}`,
       backgroundColor: '#f4e9e9',
       color: '#412f2f',
-      WebkitBoxShadow: '0 0 1px rgba(' + defaultColors.error.rgb + ',' + defaultShadowOpacity + ')',
-      MozBoxShadow: '0 0 1px rgba(' + defaultColors.error.rgb + ',' + defaultShadowOpacity + ')',
-      boxShadow: '0 0 1px rgba(' + defaultColors.error.rgb + ',' + defaultShadowOpacity + ')'
+      WebkitBoxShadow: `0 0 1px rgba(${defaultColors.error.rgb},${defaultShadowOpacity})`,
+      MozBoxShadow: `0 0 1px rgba(${defaultColors.error.rgb},${defaultShadowOpacity})`,
+      boxShadow: `0 0 1px rgba(${defaultColors.error.rgb},${defaultShadowOpacity})`,
     },
 
     warning: {
-      borderTop: '2px solid ' + defaultColors.warning.hex,
+      borderTop: `2px solid ${defaultColors.warning.hex}`,
       backgroundColor: '#f9f6f0',
       color: '#5a5343',
-      WebkitBoxShadow: '0 0 1px rgba(' + defaultColors.warning.rgb + ',' + defaultShadowOpacity + ')',
-      MozBoxShadow: '0 0 1px rgba(' + defaultColors.warning.rgb + ',' + defaultShadowOpacity + ')',
-      boxShadow: '0 0 1px rgba(' + defaultColors.warning.rgb + ',' + defaultShadowOpacity + ')'
+      WebkitBoxShadow: `0 0 1px rgba(${defaultColors.warning.rgb},${defaultShadowOpacity})`,
+      MozBoxShadow: `0 0 1px rgba(${defaultColors.warning.rgb},${defaultShadowOpacity})`,
+      boxShadow: `0 0 1px rgba(${defaultColors.warning.rgb},${defaultShadowOpacity})`,
     },
 
     info: {
-      borderTop: '2px solid ' + defaultColors.info.hex,
+      borderTop: `2px solid ${defaultColors.info.hex}`,
       backgroundColor: '#e8f0f4',
       color: '#41555d',
-      WebkitBoxShadow: '0 0 1px rgba(' + defaultColors.info.rgb + ',' + defaultShadowOpacity + ')',
-      MozBoxShadow: '0 0 1px rgba(' + defaultColors.info.rgb + ',' + defaultShadowOpacity + ')',
-      boxShadow: '0 0 1px rgba(' + defaultColors.info.rgb + ',' + defaultShadowOpacity + ')'
-    }
+      WebkitBoxShadow: `0 0 1px rgba(${defaultColors.info.rgb},${defaultShadowOpacity})`,
+      MozBoxShadow: `0 0 1px rgba(${defaultColors.info.rgb},${defaultShadowOpacity})`,
+      boxShadow: `0 0 1px rgba(${defaultColors.info.rgb},${defaultShadowOpacity})`,
+    },
   },
 
   Title: {
@@ -158,32 +158,32 @@ const STYLES = {
       fontSize: '14px',
       margin: '0 0 5px 0',
       padding: 0,
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
 
     success: {
-      color: defaultColors.success.hex
+      color: defaultColors.success.hex,
     },
 
     error: {
-      color: defaultColors.error.hex
+      color: defaultColors.error.hex,
     },
 
     warning: {
-      color: defaultColors.warning.hex
+      color: defaultColors.warning.hex,
     },
 
     info: {
-      color: defaultColors.info.hex
-    }
+      color: defaultColors.info.hex,
+    },
 
   },
 
   MessageWrapper: {
     DefaultStyle: {
       margin: 0,
-      padding: 0
-    }
+      padding: 0,
+    },
   },
 
   Dismiss: {
@@ -200,28 +200,28 @@ const STYLES = {
       width: '14px',
       height: '14px',
       fontWeight: 'bold',
-      textAlign: 'center'
+      textAlign: 'center',
     },
 
     success: {
       color: '#f0f5ea',
-      backgroundColor: '#b0ca92'
+      backgroundColor: '#b0ca92',
     },
 
     error: {
       color: '#f4e9e9',
-      backgroundColor: '#e4bebe'
+      backgroundColor: '#e4bebe',
     },
 
     warning: {
       color: '#f9f6f0',
-      backgroundColor: '#e1cfac'
+      backgroundColor: '#e1cfac',
     },
 
     info: {
       color: '#e8f0f4',
-      backgroundColor: '#a4becb'
-    }
+      backgroundColor: '#a4becb',
+    },
   },
 
   Action: {
@@ -231,36 +231,36 @@ const STYLES = {
       padding: '6px 20px',
       fontWeight: 'bold',
       margin: '10px 0 0 0',
-      border: 0
+      border: 0,
     },
 
     success: {
       backgroundColor: defaultColors.success.hex,
-      color: '#ffffff'
+      color: '#ffffff',
     },
 
     error: {
       backgroundColor: defaultColors.error.hex,
-      color: '#ffffff'
+      color: '#ffffff',
     },
 
     warning: {
       backgroundColor: defaultColors.warning.hex,
-      color: '#ffffff'
+      color: '#ffffff',
     },
 
     info: {
       backgroundColor: defaultColors.info.hex,
-      color: '#ffffff'
-    }
+      color: '#ffffff',
+    },
   },
 
   ActionWrapper: {
     DefaultStyle: {
       margin: 0,
-      padding: 0
-    }
-  }
+      padding: 0,
+    },
+  },
 };
 
-export default STYLES;
+export default styles;

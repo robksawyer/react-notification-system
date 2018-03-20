@@ -10,7 +10,7 @@ const Constants = {
     tc: 'tc',
     bl: 'bl',
     br: 'br',
-    bc: 'bc'
+    bc: 'bc',
   },
 
   // Levels
@@ -18,19 +18,19 @@ const Constants = {
     success: 'success',
     error: 'error',
     warning: 'warning',
-    info: 'info'
+    info: 'info',
   },
 
   // Notification defaults
   notification: {
-    title: null,
-    message: null,
-    level: null,
+    title: '',
+    message: '',
+    level: 'success',
     position: 'tr',
     autoDismiss: 5,
     dismissible: true,
-    action: null
-  }
+    action: null,
+  },
 };
 
 export default Constants;

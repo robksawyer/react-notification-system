@@ -9,20 +9,27 @@
  * @see https://github.com/igorprado/react-notification-system
  */
 
-import { observable, action, toJS } from "mobx";
+import { observable, action, toJS } from 'mobx';
 import merge from 'object-assign';
 
 // Constants
 import Constants from './constants';
 
 export default class NotificationStore {
-
-  @observable uid;
-  @observable initialized = false;
-  @observable notifications = [];
+  @observable initialized;
+  // The notification objects
+  @observable notifications;
+  // The notification React component elements
+  @observable components;
+  // Transition duration
+  transitionDuration = 0.5;
 
   constructor() {
-    this.uid = 3400;
+    console.log('Created Notification Store!');
+    // Set some defaults
+    this.initialized = false;
+    this.notifications = new Map();
+    this.components = new Map();
   }
 
   /**
@@ -38,11 +45,11 @@ export default class NotificationStore {
   //   const type = settings.level;
   //   const notification = { text, type }
   //
-	// 	this.notifications.push(notification);
+  //   this.notifications.push(notification);
   //   const newNotificationIndex = this.notifications.length-1;
-	// 	setTimeout(() => {
-	// 		this.deleteNotification(this.notifications[newNotificationIndex]);
-	// 	}, 5000);
+  //   setTimeout(() => {
+  //     this.deleteNotification(this.notifications[newNotificationIndex]);
+  //   }, 5000);
   // }
 
   /**
@@ -69,11 +76,17 @@ export default class NotificationStore {
 
   /**
    * addNotification
+   * Add a notification object. This displays the notification based on the
+   * object you passed.
+   * Returns the notification object to be used to programmatically dismiss a
+   * notification.
+   * @param {object} notificationSettings A settings object that describes a notification
+   * @return
    */
   @action('ADD_NOTIFICATION')
-  addNotification(notification) {
-    const tNotification = merge({}, Constants.notification, notification);
-    // let notifications = this.notifications;
+  addNotification(notificationSettings) {
+    // Create a temp notification object
+    const tNotification = merge({}, Constants.notification, notificationSettings);
 
     console.log('------- ADD NOTIFICATION -------');
     console.log(tNotification);
@@ -95,134 +108,142 @@ export default class NotificationStore {
     }
 
     // Some preparations
+    // TODO: Make these switch statements
     tNotification.position = tNotification.position.toLowerCase();
     tNotification.level = tNotification.level.toLowerCase();
-    tNotification.autoDismiss = parseInt(tNotification.autoDismiss, 10);
 
-    tNotification.uid = tNotification.uid || this.uid;
+    // Set the default properties of the notification
+    tNotification.style = {};
+    tNotification.visible = false;
+    tNotification.removed = false;
+    tNotification.isMounted = false;
+    tNotification.height = 0;
+    tNotification.noAnimation = false;
+    tNotification.dismissible = true;
+    tNotification.autoDismiss = parseInt(tNotification.autoDismiss, 10) || 5;
+
+    tNotification.uid = tNotification.uid || this.uid || 3400;
     // TODO: Figure out a better way to handle this.
-    tNotification.ref = `notification${tNotification.uid}`;
+    tNotification.ref = `notification-${tNotification.uid}`;
     this.uid += 1;
 
     // do not add if the notification already exists based on supplied uid
-    for (let i = 0; i < this.notifications.length; i += 1) {
-      if (this.notifications[i].uid === tNotification.uid) {
+    for (let i = 0; i < this.notifications.size; i += 1) {
+      console.log(this.notifications.get(this.uid).uid);
+      if (this.notifications.get(this.uid).uid === tNotification.uid) {
         return false;
       }
     }
 
     // Add the new notification to the stack
-    this.notifications.push(tNotification);
-
-    console.log(tNotification.onAdd);
-
-    if (typeof tNotification.onAdd === 'function') {
-      console.log('onAdd');
-      // notification.onAdd(tNotification);
-      this.notifications.onAdd(tNotification);
-    }
-
-    // this.notifications.replace(notifications);
+    this.notifications.set(tNotification.uid, tNotification);
 
     return tNotification;
   }
 
   /**
    * getNotificationRef
+   * @param {int} uid The notification uid.
+   * @return {string}
    */
   @action('GET_NOTIFICATION')
-  getNotificationRef(notification) {
-    let self = this;
-    let foundNotification = null;
+  getNotificationRef(uid) {
+    // const self = this;
+    // let foundNotification = null;
+    //
+    // Object.keys(this.refs).forEach(
+    //   (container) => {
+    //     if (container.indexOf('container') > -1) {
+    //       Object.keys(self.refs[container].refs).forEach(
+    //         (tNotification) => {
+    //           const uid = notification.uid ? notification.uid : notification;
+    //           if (tNotification === `notification${uid}`) {
+    //             // NOTE: Stop iterating further and return the found notification.
+    //             // Since UIDs are uniques and there won't be another notification found.
+    //             foundNotification = self.refs[container].refs[tNotification];
+    //
+    //             console.log('------ FOUND NOTIFICATION ------');
+    //             console.log(foundNotification);
+    //           }
+    //         },
+    //       );
+    //     }
+    //   },
+    // );
 
-    Object.keys(this.refs).forEach(
-      (container) => {
-        if (container.indexOf('container') > -1) {
-          Object.keys(self.refs[container].refs).forEach(
-            (_notification) => {
-              let uid = notification.uid ? notification.uid : notification;
-              if (_notification === 'notification-' + uid) {
-                // NOTE: Stop iterating further and return the found notification.
-                // Since UIDs are uniques and there won't be another notification found.
-                foundNotification = self.refs[container].refs[_notification];
-
-                console.log('------ FOUND NOTIFICATION ------');
-                console.log(foundNotification);
-                return;
-              }
-            }
-          );
-        }
-      }
-    );
-
-    return foundNotification;
+    // return foundNotification;
+    return this.notifications[uid].ref;
   }
 
   /**
    * removeNotification
+   * @param {int} uid The id of the notifcation to remove.
    */
   @action('DELETE_NOTIFICATION')
-  removeNotification(notification) {
-    let foundNotification = this.getNotificationRef(notification);
-    return foundNotification && foundNotification._hideNotification();
+  removeNotification(uid) {
+    return this.hideNotification(uid);
   }
 
   /**
    * editNotification
+   * Edit a notification programmatically. You can pass an object previously
+   * returned by addNotification() or by onAdd() callback. If passing an object,
+   * you need to make sure it must contain the uid property. You can pass only
+   * the uid too: editNotification(uid).
+   * @param {int, object} notification Notification object must contain uid.
+   * @return {object}
    */
   @action('EDIT_NOTIFICATION')
-  editNotification(notification, newNotification) {
+  editNotification(notificationSettings, newNotificationSettings) {
     let foundNotification = null;
     // NOTE: Find state notification to update by using
     // `setState` and forcing React to re-render the component.
-    let uid = notification.uid ? notification.uid : notification;
+    const uid = notificationSettings.uid ? notificationSettings.uid : notificationSettings;
 
-    let newNotifications = this.notifications.filter(
-      (stateNotification) => {
-        if (uid === stateNotification.uid) {
-          foundNotification = stateNotification;
+    const newNotifications = this.notifications.filter(
+      (storeNotification) => {
+        if (uid === storeNotification.uid) {
+          foundNotification = storeNotification;
           return false;
         }
         return true;
-      }
+      },
     );
-
 
     if (!foundNotification) {
       return;
     }
 
-    newNotifications.push(
-      merge(
-        {},
-        foundNotification,
-        newNotification
-      )
-    );
+    newNotifications.push(merge(
+      {},
+      foundNotification,
+      newNotificationSettings,
+    ));
 
     this.notifications.replace(newNotifications);
   }
 
   /**
    * clearNotifications
+   * Handles clearing all of the notifications
+   * @see https://mobx.js.org/refguide/array.html
    */
   @action('CLEAR_NOTIFICATIONS')
   clearNotifications() {
-    const self = this;
-    Object.keys(this.refs).forEach(
-      (container) => {
-        if (container.indexOf('container') > -1) {
-          Object.keys(self.refs[container].refs).forEach(
-            (_notification) => {
-              self.refs[container].refs[_notification]._hideNotification();
-            }
-          );
-        }
-      }
-    );
-  }
+    // const self = this;
+    // Object.keys(this.refs)
+    //   .forEach((container) => {
+    //     if (container.indexOf('container') > -1) {
+    //       Object.keys(self.refs[container].refs)
+    //         .forEach((tNotification) => {
+    //           self.refs[container].refs[tNotification].hideNotification();
+    //         });
+    //     }
+    //   });
 
+    // TODO: See if the mobx clear is better.
+    this.notifications.clear();
+  }
 
   /**
    * addSimpleNotification
@@ -230,10 +251,10 @@ export default class NotificationStore {
    * @param {string} message Message of the notification
    * @param {string} level Level of the notification. Available: success, error, warning and info
    */
-  @action addSimpleNotification(message, level){
+  @action addSimpleNotification(message, level) {
     this.addNotification({
-      message: message,
-      level: level
+      message,
+      level,
     });
   }
 
@@ -242,10 +263,10 @@ export default class NotificationStore {
    * Handles adding an error notification to the queue.
    * @param {string} message Message of the notification
    */
-  @action addErrorNotification(message){
+  @action addErrorNotification(message) {
     this.addNotification({
-      message: message,
-      level: 'error'
+      message,
+      level: 'error',
     });
   }
 
@@ -254,10 +275,10 @@ export default class NotificationStore {
    * Handles adding an success notification to the queue.
    * @param {string} message Message of the notification
    */
-  @action addSuccessNotification(message){
+  @action addSuccessNotification(message) {
     this.addNotification({
-      message: message,
-      level: 'success'
+      message,
+      level: 'success',
     });
   }
 
@@ -266,10 +287,10 @@ export default class NotificationStore {
    * Handles adding an warning notification to the queue.
    * @param {string} message Message of the notification
    */
-  @action addWarningNotification(message){
+  @action addWarningNotification(message) {
     this.addNotification({
-      message: message,
-      level: 'warning'
+      message,
+      level: 'warning',
     });
   }
 
@@ -278,19 +299,10 @@ export default class NotificationStore {
    * Handles adding an info notification to the queue.
    * @param {string} message Message of the notification
    */
-  @action addInfoNotification(message){
+  @action addInfoNotification(message) {
     this.addNotification({
-      message: message,
-      level: 'info'
+      message,
+      level: 'info',
     });
-  }
-
-  /**
-   * Handles clearing all of the notifications
-   * @see https://mobx.js.org/refguide/array.html
-   * @param {void}
-   */
-  @action clearNotifications(){
-    this.notifications.clear();
   }
 }
